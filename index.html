@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Me gustas</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #0a0a1a, #1a1a40, #000);
+      overflow: hidden;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: white;
+      text-align: center;
+    }
+    #canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      z-index: 0;
+    }
+    .mensaje {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      font-size: clamp(20px, 5vw, 34px);
+      font-weight: bold;
+      line-height: 1.4;
+      text-shadow: 0 0 12px rgba(255,255,255,0.6), 0 0 20px pink;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="mensaje">
+    ✨ Me gustas hasta las estrías ✨<br>
+    💕 Te adoro 💕
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    // --- Estrellas ---
+    const estrellas = [];
+    for (let i = 0; i < 120; i++) {
+      estrellas.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
+        speed: Math.random() * 0.02 + 0.01
+      });
+    }
+
+    function dibujarEstrellas() {
+      for (let estrella of estrellas) {
+        ctx.beginPath();
+        ctx.arc(estrella.x, estrella.y, estrella.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${estrella.alpha})`;
+        ctx.fill();
+        estrella.alpha += estrella.speed * (Math.random() > 0.5 ? 1 : -1);
+        if (estrella.alpha < 0) estrella.alpha = 0;
+        if (estrella.alpha > 1) estrella.alpha = 1;
+      }
+    }
+
+    // --- Corazón ---
+    let t = 0;
+    function dibujarCorazon(cx, cy, size) {
+      ctx.beginPath();
+      for (let i = 0; i < Math.PI * 2; i += 0.02) {
+        const x = size * 16 * Math.pow(Math.sin(i), 3);
+        const y = -size * (13 * Math.cos(i) - 5 * Math.cos(2*i) - 2 * Math.cos(3*i) - Math.cos(4*i));
+        if (i === 0) ctx.moveTo(cx + x, cy + y);
+        else ctx.lineTo(cx + x, cy + y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = "rgba(255,120,140,0.6)";
+      ctx.strokeStyle = "rgba(255,200,255,0.8)";
+      ctx.lineWidth = 3;
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // --- Animación ---
+    function animar() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      dibujarEstrellas();
+
+      const beat = 1 + 0.05 * Math.sin(t);
+      const size = Math.min(canvas.width, canvas.height) / 25 * beat;
+      dibujarCorazon(canvas.width/2, canvas.height/2, size);
+
+      t += 0.1;
+      requestAnimationFrame(animar);
+    }
+    animar();
+  </script>
+</body>
+</html>
